@@ -14,19 +14,19 @@ import styles from "./Map.module.css";
 import { useCitiesContext } from "../../hooks/useCitiesContext";
 import { useGeolocation } from "../../hooks/useGeolocation";
 import Button from "../Button/Button";
+import { useUrlPosition } from "../../hooks/useUrlPosition";
 
 function Map() {
   const { cities } = useCitiesContext();
   const [mapPosition, setMapPosition] = useState([40, 0]);
-  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
   const {
     isLoading: isLoadingPosition,
     position: geolocationPosition,
     getPosition: getGeolocationPosition,
   } = useGeolocation();
-
-  const mapLat = searchParams.get("lat");
-  const mapLng = searchParams.get("lng");
+  const [mapLat, mapLng] = useUrlPosition();
 
   useEffect(
     function () {
@@ -39,16 +39,16 @@ function Map() {
     function () {
       if (geolocationPosition) {
         setMapPosition([geolocationPosition.lat, geolocationPosition.lng]);
+
+        navigate(
+          `form?lat=${geolocationPosition.lat}&lng=${geolocationPosition.lng}`
+        );
+
+        // setMapPosition(geolocationPosition.lat, geolocationPosition.lng);
       }
     },
-    [geolocationPosition]
+    [geolocationPosition, navigate]
   );
-
-  // function onGetGeolocationPosition() {
-  //   getGeolocationPosition();
-  //   console.log(geolocationPosition);
-  //   setMapPosition(geolocationPosition);
-  // }
 
   return (
     <div
@@ -100,7 +100,7 @@ function DetectClick() {
   const navigate = useNavigate();
 
   useMapEvents({
-    click: (e) => navigate(`form?lat=${e.latlng.lat}&${e.latlng.lng}`),
+    click: (e) => navigate(`form?lat=${e.latlng.lat}&lng=${e.latlng.lng}`),
   });
 }
 
