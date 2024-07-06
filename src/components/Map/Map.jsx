@@ -16,6 +16,11 @@ import { useGeolocation } from "../../hooks/useGeolocation";
 import Button from "../Button/Button";
 import { useUrlPosition } from "../../hooks/useUrlPosition";
 
+/* -------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------- MAP COMPONENT
+----------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------- */
 function Map() {
   const { cities } = useCitiesContext();
   const [mapPosition, setMapPosition] = useState([40, 0]);
@@ -50,6 +55,9 @@ function Map() {
     [geolocationPosition, navigate]
   );
 
+  /* -------------------------------------------------------------------------------------
+  ---------------------------------------------------------------------------- MAIN RETURN
+  ------------------------------------------------------------------------------------- */
   return (
     <div
       className={styles.mapContainer}
@@ -93,6 +101,7 @@ function ChangeCenter({ position }) {
   const map = useMap();
   map.closePopup();
   map.setView(position);
+
   return null;
 }
 

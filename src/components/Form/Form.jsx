@@ -1,6 +1,9 @@
 // "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=0&longitude=0"
 
 import { useEffect, useState } from "react";
+import DatePicker from "react-datepicker";
+
+import "react-datepicker/dist/react-datepicker.css";
 
 import styles from "./Form.module.css";
 import Button from "../Button/Button";
@@ -8,8 +11,10 @@ import BackButton from "../BackButton/BackButton";
 import { useUrlPosition } from "../../hooks/useUrlPosition";
 import Message from "../Message/Message";
 import Spinner from "../Spinner/Spinner";
+import { useCitiesContext } from "../../hooks/useCitiesContext";
+import { useNavigate } from "react-router-dom";
 
-export function convertToEmoji(countryCode) {
+function convertToEmoji(countryCode) {
   const codePoints = countryCode
     .toUpperCase()
     .split("")
@@ -23,15 +28,22 @@ function getApiUrl(lat = 0, lng = 0) {
   return `${BASE_URL}?latitude=${lat}&longitude=${lng}`;
 }
 
+/* -------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+------------------------------------------------------------------------- FORM COMPONENT
+----------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------- */
 function Form() {
-  const [isLoadingGeocoding, setIsLoadingGeocoding] = useState(false);
   const [lat, lng] = useUrlPosition();
+  const { createCity, isLoading: isLoadingCities } = useCitiesContext();
+  const [isLoadingGeocoding, setIsLoadingGeocoding] = useState(false);
   const [cityName, setCityName] = useState("");
   const [country, setCountry] = useState("");
   const [date, setDate] = useState(new Date());
   const [notes, setNotes] = useState("");
   const [emoji, setEmoji] = useState("");
   const [geocodingError, setGeocodingError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(
     function () {
@@ -41,7 +53,6 @@ function Form() {
           setGeocodingError("");
           const res = await fetch(getApiUrl(lat, lng));
           const data = await res.json();
-          console.log(data);
 
           if (!data.countryCode)
             throw new Error(
@@ -58,17 +69,49 @@ function Form() {
         }
       }
 
-      fetchCityData();
+      if (lat && lng) fetchCityData();
     },
     [lat, lng]
   );
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!cityName || !date) return;
+
+    const newCity = {
+      cityName,
+      country,
+      emoji,
+      date,
+      notes,
+      position: {
+        lat,
+        lng,
+      },
+    };
+
+    await createCity(newCity);
+    navigate(`/app/cities`);
+  }
+
+  /* -------------------------------------------------------------------------------------
+  -------------------------------------------------------------------------- GUARD CLAUSES
+  ------------------------------------------------------------------------------------- */
+  if (!lat || !lng)
+    return <Message message="Start by clicking somewhere on the map" />;
 
   if (isLoadingGeocoding) return <Spinner />;
 
   if (geocodingError) return <Message message={geocodingError} />;
 
+  /* -------------------------------------------------------------------------------------
+  ---------------------------------------------------------------------------- MAIN RETURN
+  ------------------------------------------------------------------------------------- */
   return (
-    <form className={styles.form}>
+    <form
+      className={`${styles.form} ${isLoadingCities ? styles.loading : ""}`}
+      onSubmit={handleSubmit}
+    >
       <div className={styles.row}>
         <label htmlFor="cityName">City name</label>
         <input
@@ -81,10 +124,11 @@ function Form() {
 
       <div className={styles.row}>
         <label htmlFor="date">When did you go to {cityName}?</label>
-        <input
+        <DatePicker
           id="date"
-          onChange={(e) => setDate(e.target.value)}
-          value={date}
+          // dateFormat="dd/MM/yyyy" // To conform to America's confused and confusing system
+          selected={date}
+          onChange={(date) => setDate(date)}
         />
       </div>
 
