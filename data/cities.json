@@ -37,15 +37,15 @@
       "id": "98443197"
     },
     {
-      "id": "4cbc",
-      "cityName": "Ait Kamra",
-      "country": "Morocco",
-      "emoji": "🇲🇦",
-      "date": "2024-07-06T15:58:43.799Z",
-      "notes": "Why",
+      "id": "b24c",
+      "cityName": "Albacete",
+      "country": "Spain",
+      "emoji": "🇪🇸",
+      "date": "2024-07-07T17:50:35.299Z",
+      "notes": "Test",
       "position": {
-        "lat": "35.18278813800229",
-        "lng": "-3.9331054687500004"
+        "lat": "38.95940879245423",
+        "lng": "-1.8676757812500002"
       }
     }
   ]
