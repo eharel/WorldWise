@@ -1,4 +1,4 @@
-import { createContext, useEffect, useReducer, useState } from "react";
+import { createContext, useCallback, useEffect, useReducer } from "react";
 
 const BASE_URL = "http://localhost:8000";
 
@@ -22,6 +22,11 @@ const initialState = {
   error: "",
 };
 
+/* -------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+------------------------------------------------------------------------- CITIES REDUCER
+----------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------- */
 function citiesReducer(state, action) {
   const { type, payload } = action;
   switch (type) {
@@ -29,7 +34,6 @@ function citiesReducer(state, action) {
       return { ...state, isLoading: true };
     }
     case CityActionTypes.CITIES_LOADED: {
-      console.log("In cities loaded case");
       return {
         ...state,
         isLoading: false,
@@ -68,10 +72,12 @@ function citiesReducer(state, action) {
   }
 }
 
+/* -------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+------------------------------------------------------------------------ CITIES PROVIDER
+----------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------- */
 function CitiesProvider({ children }) {
-  // const [cities, setCities] = useState([]);
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [currentCity, setCurrentCity] = useState({});
   const [state, dispatch] = useReducer(citiesReducer, initialState);
   const { cities, isLoading, currentCity, error } = state;
 
@@ -96,23 +102,26 @@ function CitiesProvider({ children }) {
     fetchCities();
   }, []);
 
-  async function getCity(id) {
-    if (String(id) === String(currentCity.id)) return;
+  const getCity = useCallback(
+    async function getCity(id) {
+      if (String(id) === String(currentCity.id)) return;
 
-    dispatch({ type: CityActionTypes.LOADING });
+      dispatch({ type: CityActionTypes.LOADING });
 
-    try {
-      const res = await fetch(`${BASE_URL}/cities/${id}`);
-      const data = await res.json();
+      try {
+        const res = await fetch(`${BASE_URL}/cities/${id}`);
+        const data = await res.json();
 
-      dispatch({ type: CityActionTypes.CITY_LOADED, payload: data });
-    } catch {
-      dispatch({
-        type: CityActionTypes.REJECTED,
-        payload: "There was an error loading the city",
-      });
-    }
-  }
+        dispatch({ type: CityActionTypes.CITY_LOADED, payload: data });
+      } catch {
+        dispatch({
+          type: CityActionTypes.REJECTED,
+          payload: "There was an error loading the city",
+        });
+      }
+    },
+    [currentCity.id]
+  );
 
   async function createCity(newCity) {
     dispatch({ type: CityActionTypes.LOADING });
