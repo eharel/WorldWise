@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-import { useCitiesContext } from "../../hooks/useCitiesContext";
+import { useCitiesContext } from "../../hooks/useContext";
 import styles from "./City.module.css";
 import Spinner from "../Spinner/Spinner";
 import BackButton from "../BackButton/BackButton";
@@ -24,7 +24,7 @@ function City() {
       getCity(id);
       setIsLoadingSpinner(false);
     },
-    [id]
+    [id, getCity]
   );
 
   const { cityName, emoji, date, notes } = currentCity;

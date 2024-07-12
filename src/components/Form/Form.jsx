@@ -11,7 +11,7 @@ import BackButton from "../BackButton/BackButton";
 import { useUrlPosition } from "../../hooks/useUrlPosition";
 import Message from "../Message/Message";
 import Spinner from "../Spinner/Spinner";
-import { useCitiesContext } from "../../hooks/useCitiesContext";
+import { useCitiesContext } from "../../hooks/useContext";
 import { useNavigate } from "react-router-dom";
 
 function convertToEmoji(countryCode) {
